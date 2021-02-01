@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>3장</title>
+</head>
+<body>
+	<script src="fn.js"></script>
+	<script>
+		forEach([1, 2, 3], d => console.log(d));
+
+		console.log(every([NaN, NaN, NaN], isNaN));
+		console.log(every([NaN, 4, NaN], isNaN));
+
+		console.log(some([NaN, NaN, NaN], isNaN));
+		console.log(some([1, 2, 3], isNaN));
+
+		// sort 함수
+		const fruit = ['cherries', 'apples', 'bananas'];
+		console.log(fruit);
+		fruit.sort();
+		console.log(fruit);
+
+		/*
+			arr.sort([compareFunction])
+			function compare(a, b) {
+				// a는 b보다 작다.
+				if (a is less than b by some ordering criterion) {
+					return -1;
+				}
+	
+				// a는 b보다 크다.
+				if (a is greater than b by some ordering criterion) {
+					return 1;
+				}
+				
+				// a는 b와 같아야 한다.
+				return 0;
+			}
+
+			`compareFunction`이 제공되면 배열 요소는 compare 함수의 반환 값에 따라 정렬됩니다.
+
+
+			- compareFunction(a, b)가 -1인 경우 a를 b보다 낮은 색인으로 정렬합니다. 즉, a가 먼저 옵니다.
+			- compareFunction(a, b)가 1인 경우 a를 b보다 높은 색인으로 정렬합니다. 즉, b가 먼저 옵니다.
+			- compareFunction(a, b)가 0을 반환하면 서로에 대해 변경하지 않고 모든 다른 요소에 대해 정렬합니다.
+		*/
+
+		const people = [
+			{ firstname: 'aaFirstName', lastname: 'cclastName' },
+			{ firstname: 'ccFirstName', lastname: 'aalastName' },
+			{ firstname: 'bbFirstName', lastname: 'bblastName' }
+		];
+
+		console.table(people);
+
+		// 기본 형태(오름차순)
+		people.sort((a, b) => (a.firstname < b.firstname) ? -1 : (a.firstname > b.firstname) ? 1 : 0);
+
+		console.table(people);
+	</script>
+</body>
+</html>

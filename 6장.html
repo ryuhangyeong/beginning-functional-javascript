@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>6장</title>
+</head>
+<body>
+	<script src="fn.js"></script>
+	<script>
+		const add = (x, y) => x + y;
+
+		const addCurried = x => y => x + y;
+
+		console.log(addCurried(4)(5)); // 9
+
+		let autoCurriedAdd = curry(add);
+
+		console.log(autoCurriedAdd(2)(2)); // 4
+ 
+		const multiply = (x, y, z) => x * y * z;
+
+		console.log(curry1(multiply)(1, 2, 3)); // 6
+		console.log(curry1(multiply)(1, 2, 0)); // 0
+
+		console.log(curry2(multiply)(3)(2)(1)); // 6
+
+		let curriedMul3 = curry2(multiply)(3);
+		let curriedMul2 = curriedMul3(2);
+		let curriedMul1 = curriedMul2(1);
+
+		console.log(curriedMul1);
+
+		console.log(curry2(multiply)(3, 2)(1)); // 6
+
+		console.log(curry2(multiply)(1, 2, 3)); // 6
+		console.log(curry2(multiply)(1, 2, 3, 4)); // 6
+
+		/*
+			재귀를 사용한 코드라 단계별로 살펴볼 필요가 있다.
+
+			재귀에서는 base case가 중요하다. base case에 수렴하면 종료하기 때문이다.
+
+			그러니까 적용 함수(fn)의 매개 변수 길이만큼 값을 받지 못하면 계속 함수를 리턴하고
+			매개 변수 길이만큼 인자를 모두 받으면 지금까지 받은 인자를 토대로 함수를 호출한다.
+		 */
+		console.log(curry2(multiply)(3));
+
+		const loggerHelper = (mode, initialMessage, errorMessage, lineNo) => {
+			if (mode == "DEBUG") {
+				console.debug(initialMessage, errorMessage + "at line: " + lineNo);
+			} else if (mode == "ERROR") {
+				console.error(initialMessage, errorMessage + "at line: " + lineNo);
+			} else if (mode == "WARN") {
+				console.warn(initialMessage, errorMessage + "at line: " + lineNo);
+			} else {
+				throw "Wrong mode";
+			}
+		};
+
+		loggerHelper("ERROR", "Error At Stats.js", "Invalid argument passed", 23);
+
+		let errorLogger = curry2(loggerHelper)("ERROR")("Error At Stats.js");
+
+		errorLogger("ERROR message", 100);
+
+		let match = curry2(function (expr, str) {
+			return str.match(expr);
+		});
+
+		let hasNumber = match(/[0-9]+/);
+
+		console.log(hasNumber('inNaN')); // null
+		console.log(hasNumber('10'));
+
+		let filter1 = curry2(function (f, arr) {
+			return arr.filter(f);
+		});
+
+		let findNumbersInArray = filter1(hasNumber);
+
+		console.log(findNumbersInArray(['js', 'number1']));
+
+		let map1 = curry2(function (f, arr) {
+			return arr.map(f);
+		});
+
+		let squareAll = map1(x => x * x);
+
+		console.log(squareAll([1, 2, 3]));
+
+		// setTimeout(() => console.log("Do X task"), 1000);
+		// setTimeout(() => console.log("Do Y task"), 1000);
+
+		// const setTimeoutWrapper = (time, fn) => setTimeout(fn, time);
+		// const delaySeconds = curry2(setTimeoutWrapper)(1000);
+
+		// delaySeconds(() => console.log("Do X task"));
+		// delaySeconds(() => console.log("Do Y task"));
+
+		let delayTenMs = partial(setTimeout, undefined, 500);
+		delayTenMs(() => console.log("Do Y task"));
+
+		let prettyPrintJson = partial(JSON.stringify, undefined, null, 2);
+		console.log(prettyPrintJson({ foo: "bar", bar: "foo" }));
+	</script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>5장</title>
+</head>
+<body>
+	<script src="fn.js"></script>
+	<script>
+		const arr = [1, 2, 3];
+
+		console.log(map(arr, a => a * a));
+		console.log(filter(arr, a => a < 3));
+		console.log(concatAll([[1, 2], [3, 4]]));
+
+		const useless = [2, 5, 6, 1, 10];
+
+		let result = 0;
+		forEach(useless, (v) => {
+			result += v;
+		});
+		console.log(result);
+
+		/*
+			const reduce = (arr, fn) => {
+				let acc = 0;
+				for (const v of arr) {
+					acc = fn(acc, v);
+				}
+				return [acc];
+			};
+		*/
+		console.log(reduce(useless, (acc, v) => acc + v)); // [24]
+		console.log(reduce(useless, (acc, v) => acc * v)); // [0] 잘못된 결과!
+
+		/*
+			const reduce = (arr, fn, initialValue) => {
+				let acc = 0;
+
+				if (initialValue != undefined) acc = initialValue;
+				else acc = arr[0];
+
+				if (initialValue === undefined) {
+					for (let i = 1; i < arr.length; i++) {
+						acc = fn(acc, arr[i]);
+					}
+				} else {
+					for (const v of arr) {
+						acc = fn(acc, v);
+					}
+				}
+
+				return [acc];
+			};
+		 */
+
+		console.log(reduce(useless, (acc, v) => acc + v)); // [24]
+		console.log(reduce(useless, (acc, v) => acc * v)); // [600]
+
+		console.log(reduce(useless, (acc, v) => acc + v, 10)); // [34]
+		console.log(reduce(useless, (acc, v) => acc * v, 10)); // [6000]
+
+		const arr1 = ['a', 'b', 'a', 'c', 'b', 'a'];
+
+		console.log(reduce(arr1, (acc, v) => {
+			if (acc.hasOwnProperty(v)) acc[v] += 1;
+			else acc[v] = 0;
+			return acc;
+		}, {}));
+
+		console.log(reduce1(useless, (acc, v) => acc + v, 10)); // [34]
+		console.log(reduce1(useless, (acc, v) => acc * v, 10)); // [6000]
+
+		console.log(reduce1(arr1, (acc, v) => {
+			if (acc.hasOwnProperty(v)) acc[v] += 1;
+			else acc[v] = 0;
+			return acc;
+		}, {}));
+
+
+		let apressBooks = [
+			{
+				name: 'beginners',
+				bookDetails: [
+					{
+						id: 111,
+						title: 'C# 6.0',
+						author: 'ANDREW TROELSEN',
+						rating: [4.7]
+					},
+					{
+						id: 222,
+						title: 'Efficient Learning Machines',
+						author: 'Rahul Khanna',
+						rating: [4.5],
+						reviews: []
+					}
+				]
+			},
+			{
+				name: 'pro',
+				bookDetails: [
+					{
+						id: 333,
+						title: 'Pro AngularJS',
+						author: 'Adam Freeman',
+						rating: [4.0],
+						reviews: []
+					},
+					{
+						id: 444,
+						title: 'Pro ASP.NET',
+						author: 'Adam Freeman',
+						rating: [4.2]
+					},
+				]
+			}
+		];
+
+		let reviewDetails = [
+			{
+				id: 111,
+				reviews: [{ good: 4, excellent: 12 }]
+			},
+			{
+				id: 222,
+				reviews: []
+			},
+			{
+				id: 333,
+				reviews: []
+			},
+			{
+				id: 444,
+				reviews: [{ good: 14, excellent: 12 }]
+			}
+		];
+
+		console.log(zip([1, 2, 3], [4, 5, 6], (x, y) => x + y));
+
+		let bookDetails = concatAll(
+			map(apressBooks, book => {
+				return book.bookDetails;
+			}));
+
+		console.log(bookDetails);
+
+		let mergedBookDetails = zip(bookDetails, reviewDetails,
+			(book, review) => {
+				if (book.id === review.id) {
+					// Object.assign을 사용하는 이유는 원본 book에 영향을 주지 않기 위해
+					let clone = Object.assign({}, book);
+					clone.ratings = review;					
+					return clone;
+				}
+			});
+
+		console.log(mergedBookDetails);
+	</script>
+</body>
+</html>
