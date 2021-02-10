@@ -62,13 +62,13 @@
 	// let data = parseFloat("3.56");
 	// let number = Math.round(data);
 
-	let number = compose(Math.round, parseFloat);
+	let number = compose1(Math.round, parseFloat);
 	console.log(number("3.56"));
 
-	let splitIntoSpaces = str => str.split(" ");
-	let count = arr => arr.length;
-	const countWords = compose(count, splitIntoSpaces);
-	console.log(countWords("hello your rading about composition"));
+	// let splitIntoSpaces = str => str.split(" ");
+	// let count = arr => arr.length;
+	// const countWords = compose1(count, splitIntoSpaces);
+	// console.log(countWords("hello your rading about composition"));
 
 	// 필터링 함수
 	let filterOutStandingBooks = book => book.rating[0] === 5;
@@ -121,14 +121,29 @@
 	let queryGoodBooks = partial(filter, undefined, filterGoodBooks);
 	console.log(queryGoodBooks(apressBooks));
 	let mapTitleAndAuthor = partial(map, undefined, projectTitleAndAuthor);
-	let titleAndAuthorForGoodBooks = compose(mapTitleAndAuthor, queryGoodBooks);
+	let titleAndAuthorForGoodBooks = compose1(mapTitleAndAuthor, queryGoodBooks);
 
 	// 적어둔거 읽으면 이해가 가는데 직접 짜려고 하면 너무 헷갈릴거 같다.
 	console.log(titleAndAuthorForGoodBooks(apressBooks));
 
 	let mapTitle = partial(map, undefined, projectTitle);
-	let titleForGoodBooks = compose(mapTitle, queryGoodBooks);
+	let titleForGoodBooks = compose1(mapTitle, queryGoodBooks);
 	console.log(titleForGoodBooks(apressBooks));
+
+	// reduce 복습
+	console.log(
+		reduce1([10, 20, 30], (acc, it) => it + acc, 0)
+	);
+
+	let splitIntoSpaces = str => str.split(" ");
+	let count = arr => arr.length;
+	const countWords = compose2(count, splitIntoSpaces);
+	console.log(countWords("hello your rading about composition"));
+
+	let oddOrEven = (ip) => ip % 2 == 0 ? "even" : "odd";
+
+	const oddOrEvenWords = compose2(oddOrEven, count, splitIntoSpaces);
+	console.log(oddOrEvenWords("hello your rading about composition"));
 	</script>
 </body>
 </html>

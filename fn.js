@@ -108,7 +108,7 @@ const reduce1 = (arr, fn, acc) => {
 	let iter = arr[Symbol.iterator]();
 	if (!acc) acc = iter.next().value;
 	for (const v of iter) acc = fn(acc, v);
-	return [acc];
+	return acc;
 };
 
 /*
@@ -174,6 +174,9 @@ const partial = function (fn, ...partialArgs) {
 };
 
 // 버전1 compose
-// const compose = (a, b) => (c) => a(b(c));
+const compose1 = (a, b) => (c) => a(b(c));
 
-// 여러 함수 합성
+/*
+	버전2 compose
+*/
+const compose2 = (...fns) => (value) => reduce(fns.reverse(), (acc, fn) => fn(acc), value);
