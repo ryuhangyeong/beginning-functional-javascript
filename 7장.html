@@ -142,7 +142,10 @@
 
 	let oddOrEven = (ip) => ip % 2 == 0 ? "even" : "odd";
 
-	const oddOrEvenWords = compose2(oddOrEven, count, splitIntoSpaces);
+	// const oddOrEvenWords = compose2(oddOrEven, count, splitIntoSpaces);
+	// console.log(oddOrEvenWords("hello your rading about composition"));
+
+	const oddOrEvenWords = pipe(splitIntoSpaces, count, oddOrEven);
 	console.log(oddOrEvenWords("hello your rading about composition"));
 	</script>
 </body>

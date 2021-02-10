@@ -176,7 +176,8 @@ const partial = function (fn, ...partialArgs) {
 // 버전1 compose
 const compose1 = (a, b) => (c) => a(b(c));
 
-/*
-	버전2 compose
-*/
+// 버전2 compose
 const compose2 = (...fns) => (value) => reduce(fns.reverse(), (acc, fn) => fn(acc), value);
+
+// pipe
+const pipe = (...fns) => (value) => reduce(fns, (acc, fn) => fn(acc), value);
