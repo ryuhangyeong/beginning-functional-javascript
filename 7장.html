@@ -9,6 +9,126 @@
 	<script>
 
 	// 컴포지션과 파이프라인
+	let apressBooks = [
+		{
+			id: 111,
+			title: "C# 6.0",
+			author: "ANDREW TROELSEN",
+			rating: [4.7],
+			reviews: [
+				{
+					good: 4,
+					excellent: 12
+				}
+			]
+		},
+		{
+			id: 222,
+			title: "Efficient Learning Machines",
+			author: "Rahul Khanna",
+			rating: [4.5],
+			reviews: []
+		},
+		{
+			id: 333,
+			title: "Pro AngularJS",
+			author: "Adam Freeman",
+			rating: [4.0],
+			reviews: []
+		},
+		{
+			id: 444,
+			title: "Pro ASP.NET",
+			author: "Adam Freeman",
+			rating: [4.2],
+			reviews: [
+				{
+					good: 14,
+					excellent: 12
+				}
+			]
+		}
+	];
+
+	console.log(
+		map(filter(apressBooks, (book) => book.rating[0] > 4.5), (book) => {
+			return {
+				title: book.title,
+				author: book.author
+			};
+		})
+	);
+
+	// let data = parseFloat("3.56");
+	// let number = Math.round(data);
+
+	let number = compose(Math.round, parseFloat);
+	console.log(number("3.56"));
+
+	let splitIntoSpaces = str => str.split(" ");
+	let count = arr => arr.length;
+	const countWords = compose(count, splitIntoSpaces);
+	console.log(countWords("hello your rading about composition"));
+
+	// 필터링 함수
+	let filterOutStandingBooks = book => book.rating[0] === 5;
+	let filterGoodBooks = book => book.rating[0] > 4.5;
+	let filterBadBooks = book => book.rating[0] < 3.5;
+
+	// 프로젝션 함수
+	let projectTitleAndAuthor = book => {
+		return {
+			title: book.title,
+			author: book.author
+		};
+	};
+	let projectAuthor = book => {
+		return {
+			author: book.author
+		};
+	};
+	let projectTitle = book => {
+		return {
+			title: book.title
+		};
+	};
+
+	// curry2 복습하기
+	const multiply = (x, y, z) => x * y * z;
+	console.log(curry2(multiply)(1, 2, 3)); // 6
+	console.log(curry2(multiply)(1, 2)(3)); // 6
+	console.log(curry2(multiply)(1)(2)(3)); // 6
+	console.log(curry2(multiply)(1)(2)(3)); // 6
+	/*s
+		const curry2 = fn => { // 함수를 미리 받아둔다.
+			if (typeof fn !== 'function') throw Error('No function provided'); // 함수가 아니라면 오류
+
+			return function curriedFn(...args) { // 인자를 배열로
+				if (args.length < fn.length) { // fn.length은 함수가 받아야할 매개 변수를 의미, 함수가 받아야할 매개 변수보다 받은 매개변수가 작다면 매개변수를 더 받을 수 있다는 의미이므로 다시 호출
+					return function () {
+						return curriedFn.apply(null, args.concat([].slice.call(arguments)));
+					};
+				};
+				return fn.apply(null, args);
+			};
+		};
+	
+	 */
+	// partial 복습하기
+	let delayTenMs = partial(setTimeout, undefined, 500);
+	delayTenMs(() => console.log("Do Y task"));
+
+	let queryGoodBooks = partial(filter, undefined, filterGoodBooks);
+	console.log(queryGoodBooks(apressBooks));
+	let mapTitleAndAuthor = partial(map, undefined, projectTitleAndAuthor);
+	let titleAndAuthorForGoodBooks = compose(mapTitleAndAuthor, queryGoodBooks);
+
+	// 적어둔거 읽으면 이해가 가는데 직접 짜려고 하면 너무 헷갈릴거 같다.
+	console.log(titleAndAuthorForGoodBooks(apressBooks));
+
+	let mapTitle = partial(map, undefined, projectTitle);
+	let titleForGoodBooks = compose(mapTitle, queryGoodBooks);
+	console.log(titleForGoodBooks(apressBooks));
 	</script>
 </body>
 </html>

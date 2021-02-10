@@ -173,3 +173,7 @@ const partial = function (fn, ...partialArgs) {
 	};
 };
 
+// 버전1 compose
+// const compose = (a, b) => (c) => a(b(c));
+
+// 여러 함수 합성
