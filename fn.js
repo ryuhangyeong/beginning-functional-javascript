@@ -181,3 +181,48 @@ const compose2 = (...fns) => (value) => reduce(fns.reverse(), (acc, fn) => fn(ac
 
 // pipe
 const pipe = (...fns) => (value) => reduce(fns, (acc, fn) => fn(acc), value);
+
+const MayBe = function (value) {
+	this.value = value;
+};
+
+MayBe.of = function (value) {
+	return new MayBe(value);
+};
+
+MayBe.prototype.isNothing = function () {
+	return (this.value === null || this.value === undefined);
+};
+
+MayBe.prototype.map = function (fn) {
+	return this.isNothing() ? MayBe.of(null) : MayBe.of(fn(this.value));
+};
+
+const Nothing = function (value) {
+	this.value = value;
+};
+
+Nothing.of = function (value) {
+	return new Nothing(value);
+};
+
+Nothing.prototype.map = function (f) {
+	return this;
+};
+
+const Some = function (value) {
+	this.value = value;
+};
+
+Some.of = function (value) {
+	return new Some(value);
+};
+
+Some.prototype.map = function (fn) {
+	return Some.of(fn(this.value));
+};
+
+const Either = {
+	Some: Some,
+	Nothing: Nothing
+};

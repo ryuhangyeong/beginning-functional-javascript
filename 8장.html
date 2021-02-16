@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>8장</title>
+</head>
+<body>
+	<script src="fn.js"></script>
+	<script>
+		/*
+			함수자(functor)를 통해 함수형 프로그래밍에서 에러 핸들링을 다룰 수 있도록 도와준다.
+			함수자는 컨테이너이다. 함수자는 값을 가지고 있는 컨테이너이다.
+		 */
+
+		const Container = function (value) {
+			this.value = value;
+		};
+
+		Container.of = function (value) {
+			return new Container(value);
+		};
+
+
+		let testValue = new Container(3);
+
+		let testObj = new Container({ a: 1 });
+
+		let testArray = new Container([1, 2]);
+
+		// 중요
+		// console.log(Container.of(Container.of(3)));
+
+		Container.prototype.map = function (fn) {
+			return Container.of(fn(this.value));
+		};
+
+		const double = a => a * 2;
+
+		// console.log(Container.of(3).map(double));
+
+		// console.log(Container.of(3)
+		// 	.map(double)
+		// 	.map(double)
+		// 	.map(double));
+
+		// console.log(MayBe.of("string").map((x) => x.toUpperCase()));
+		// console.log(MayBe.of(null).map((x) => x.toUpperCase())); // null
+		// console.log(MayBe.of("George").map((x) => x.toUpperCase()).map((x) => "Mr. " + x));
+
+		// 실제 사용자 케이스
+
+		let getTopTenSubRedditPosts = async (type) => {
+			let response;
+
+			try {
+				const res = await fetch(`https://www.reddit.com/r/subreddits/${type}.json?limit=10`);
+				response = await res.json();
+			} catch (err) {
+				response = { message: "Something went wrong", errorCode: err['statusCode'] }
+			}
+
+			return response;
+		}
+
+		// (async () => {
+		// 	const res = await getTopTenSubRedditPosts('test'); // error
+		// 	console.log(res.data);
+		// })();
+
+		let getTopTenSubRedditData = async (type) => {
+			const res = await getTopTenSubRedditPosts(type);
+			return MayBe.of(res).map((arr) => arr['data'])
+				.map((arr) => arr['children'])
+				.map((arr) => arr.map(x => ({
+					title: x['data'].title,
+					url: x['data'].url
+				}))
+			)
+		};
+
+		// (async () => {
+		// 	const data = await getTopTenSubRedditData('new');
+		// 	console.log(data);
+		// })();
+
+		// (async () => {
+		// 	const data = await getTopTenSubRedditData('test'); // error -> null
+		// 	console.log(data);
+		// })();
+
+		// 오 매우 멋지다.
+
+		// Either 어떤 분기에서 undefined 및 null 값에 대응되는지 알고 싶을 때 사용
+		// console.log(MayBe.of('George')
+		// 	.map(() => undefined) // 이곳
+		// 	.map((x) => "Mr. " + x))
+
+		// console.log(Some.of("test").map(x => x.toUpperCase()));
+		// console.log(Nothing.of("test").map(x => x.toUpperCase()));
+
+		// (async () => {
+		// 	const data = await getTopTenSubRedditData('unknown');
+		// 	console.log(data);
+		// })();
+
+		let getTopTenSubRedditPostsEither = async (type) => {
+			let response;
+
+			try {
+				const res = await fetch(`https://www.reddit.com/r/subreddits/${type}.json?limit=10`);
+				const data = await res.json();
+
+				if (data?.error) throw data;
+
+				response = Some.of(data);
+			} catch (err) {
+				response = Nothing.of({ message: "Something went wrong", errorCode: err['error'] });
+			}
+
+			return response;
+		};
+
+		let getTopTenSubRedditDataEither = async (type) => {
+			const res = await getTopTenSubRedditPostsEither(type);
+			return res.map((arr) => arr['data'])
+				.map((arr) => arr['children'])
+				.map((arr) => arr.map(x => ({
+					title: x['data'].title,
+					url: x['data'].url
+				}))
+			)
+		}
+
+		(async () => {
+			const data = await getTopTenSubRedditDataEither('unknown');
+			console.log(data);
+		})();
+
+		(async () => {
+			const data = await getTopTenSubRedditDataEither('new');
+			console.log(data);
+		})();
+	</script>
+</body>
+</html>

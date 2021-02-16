@@ -147,6 +147,24 @@
 
 	const oddOrEvenWords = pipe(splitIntoSpaces, count, oddOrEven);
 	console.log(oddOrEvenWords("hello your rading about composition"));
+
+	/*
+		1) 컴포지션은 결합 법칙이 성립한다. 
+		2) 여러 함수 합성시 디버깅
+	 */
+
+	const add = (a, b) => a + b;
+	const double = (n) => n * 2;
+	const increment = (n) => n + 1;
+	const ntimes = (n) => n * n;
+
+	console.log(
+		ntimes(double(increment(double(double(5)))))
+	);
+
+	// console.log(5 |> double |> double |> increment |> double |> ntimes); // 실험적 기능(stage 1)
+	console.log(add(10, double(7)));
+	// console.log(7 |> double |> (_ => add(10, _))); // // 실험적 기능(stage 1)
 	</script>
 </body>
 </html>
