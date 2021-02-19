@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>9장</title>
+</head>
+<body>
+	<script src="fn.js"></script>
+	<script>
+		let searchReddit = async (search) => {
+			let response;
+			try {
+				const data = await fetch(`https://www.reddit.com/search.json?q=${encodeURI(search)}`);
+				response = await data.json();
+			} catch (err) {
+				response = { message: "Something went wrong", errorCode: err['statusCode'] } 
+			}
+			return response;
+		}
+
+		let getComments = async (link) => {
+			let response;
+			try {
+				const data = await fetch(`https://www.reddit.com${link}`);
+				response = await data.json();
+			} catch (err) {
+				response = { message: "Something went wrong", errorCode: err['statusCode'] }
+			}
+			return response;
+		}
+
+		// (async () => {
+		// 	const data = await searchReddit("Functional Programming");
+		// 	console.log(data);
+		// })();
+
+		// (async () => {
+		// 	const data = await getComments("r/conspiracy/comments/lhx549/could_crop_circles_be_literal_programming_for_our/.json");
+		// 	console.log(data);
+		// })();
+
+		let mergeViaMayBe = async (searchText) => {
+			const data = await searchReddit(searchText);
+			let redditMayBe = MayBe.of(data)
+				.map((arr) => arr['data'])
+				.map((arr) => arr['children'])
+				.map((arr) => arr.map(x => ({
+					title: x['data'].title,
+					permalink: x['data'].permalink
+				})))
+				.map((arr) => arr.map(async x => {
+					const data = await getComments(`${x.permalink}.json`);
+					return {
+						title: x.title,
+						comments: MayBe.of(data)
+					};
+				}))
+				.map((arr) => Promise.all(arr))
+
+			return redditMayBe;
+		}
+
+		// (async () => {
+		// 	const data = await mergeViaMayBe("functional programming");
+		// 	console.log(data);
+		// 	console.log(await data.value);
+		// })();
+
+		/* 
+			중첩된/다양한 map의 문제
+			MayBe.prototype.join = function () {
+				return this.isNothing() ? MayBe.of(null) : this.value;
+			};
+		*/
+		(async () => {
+			const answer = await mergeViaMayBe("functional programming");
+			const data = await answer.value;
+
+			data.map((result) => {
+				// comments를 얻기 위해서는 계속 map으로 순회하며 내려가야한다.
+			});
+		})();
+
+		let joinExample = MayBe.of(5);
+		console.log(joinExample.join());
+
+		let joinExample1 = MayBe.of(MayBe.of(5)); // 중첩
+
+		console.log(joinExample1.join());
+
+		let joinExample2 = joinExample1.map((outsideMayBe) => {
+			return outsideMayBe.map((value) => value + 4);
+		});
+
+		console.log(joinExample2);
+
+		console.log(joinExample1.join().map((v) => v + 4));
+
+		// join을 사용한 mergeViaMayBe
+
+		let mergeViaJoin = async (searchText) => {
+			const data = await searchReddit(searchText);
+			let answer = MayBe.of(data)
+				.map((arr) => arr['data'])
+				.map((arr) => arr['children'])
+				.map((arr) => arr.map(x => ({
+					title: x['data'].title,
+					permalink: x['data'].permalink
+				})))
+				.map((arr) => arr.map(async x => {
+					const data = await getComments(`${x.permalink}.json`);
+					return {
+						title: x.title,
+						comments: MayBe.of(data).join()
+					};
+				}))
+				.map((arr) => Promise.all(arr))
+			return answer;
+		}
+
+		// 지금 내가 작성한 것은 async ~ await 라서 예제와 다르게 하고 있다.
+		(async () => {
+			const answer = await mergeViaJoin("functional programming");
+			console.log(await answer.join())
+		})();
+
+		// 모나드 부분은 다시 실습해보자. 이해가 잘 안된다.
+	</script>
+</body>
+</html>
