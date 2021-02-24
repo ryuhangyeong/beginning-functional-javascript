@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>10장</title>
+</head>
+<body>
+	<script src="fn.js"></script>
+	<script>
+		// 동기 함수
+		let sync = () => {
+
+		}
+
+		let sync2 = () => {
+
+		}
+
+		let sync3 = () => {
+
+		}
+
+		// 동기적 결과값
+		result = sync();
+		result2 = sync2();
+		result3 = sync3();
+
+		// 비동기 함수
+		let async = (fn) => {
+			fn();
+		}
+
+		let async2 = (fn) => {
+			fn();
+		}
+
+		let async3 = (fn) => {
+			fn();
+		}
+
+		/*
+			동기와 비동기
+
+			[동기]
+			함수가 실행중일 때 호출자를 블로킹하며 호출자가 이용가능할 때 결과 반환
+
+			[비동기]
+			함수가 실행중일 때 호출자를 블로킹하지 않지만, 호출자가 이용할 수 있다면 결과 반환
+		 */
+
+		// 비동기 함수 호출 예제
+		async(function (x) {
+		 	async2(function (y) {
+		 		async3(function (z) {
+
+		 		});
+		 	});
+		});
+
+		// 제너레이터 기본
+
+		function *gen() {
+			return 'first generator';
+		}
+
+		let generatorResult = gen();
+		console.log(generatorResult.next().value);
+
+		console.log(generatorResult.next().value);
+
+		function* genSequence() {
+			yield 'first';
+			yield 'second';
+			yield 'third';
+		}
+
+		let generatorSequence = genSequence();
+		console.log(generatorSequence.next());
+		console.log(generatorSequence.next());
+		console.log(generatorSequence.next());
+		// yield를 가진 모든 제너레이터는 느긋한 계산법(lazy evaluation) 순서로 실행된다
+		console.log(generatorSequence.next());
+
+		for (let value of genSequence()) {
+			console.log(value);
+		}
+
+		// 제너레이터에 데이터 전달
+
+		function* sayFullName() {
+			var firstName = yield;
+			var secondName = yield;
+			console.log(firstName + ' ' + secondName);
+		}
+
+		let fullName = sayFullName();
+
+		fullName.next(); // 실행, var firstName = yield 에서 멈춘다.
+		fullName.next('auto');
+		fullName.next('aravinth');
+
+		// 비동기용 제너레이터: 간단한 경우
+		// let getDataOne = (cb) => {
+		// 	setTimeout(function () {
+		// 		cb('dummy data one');
+		// 	}, 1000);
+		// }
+
+		// let getDataTwo = (cb) => {
+		// 	setTimeout(function () {
+		// 		cb('dummy data two');
+		// 	}, 1000);
+		// }
+
+		// getDataOne((data) => console.log("data received", data));
+		// getDataTwo((data) => console.log("data received", data));
+
+		// 와 엄청 신기하다
+		// let generator;
+		// let getDataOne = () => {
+		// 	setTimeout(function () {
+		// 		generator.next('dummy data one');
+		// 	}, 1000);
+		// }
+
+		// let getDataTwo = () => {
+		// 	setTimeout(function () {
+		// 		generator.next('dummy data two');
+		// 	}, 1000);
+		// }
+
+		// function* main() {
+		// 	let dataOne = yield getDataOne();
+		// 	let dataTwo = yield getDataTwo();
+		// 	console.log("data one", dataOne);
+		// 	console.log("data two", dataTwo);
+		// }
+
+		// generator = main();
+		// generator.next();
+
+		// 굳이 이렇게 해야할 이유는 없으나 예제를 따라가기 위해
+		function httpGetAsync(url, callback) {
+			fetch(url)
+				.then((res) => res.json())
+				.then((res) => callback(res));
+		}
+
+		// httpGetAsync('https://www.reddit.com/r/pics/.json', (data) => {
+		// 	console.log(data);
+		// });
+
+		// 코드 중첩
+		// httpGetAsync('https://www.reddit.com/r/pics/.json', (data) => {
+		// 	httpGetAsync(data.data.children[0].data.url + ".json", function (data) {
+		// 		console.log(data);
+		// 	});
+		// });
+
+		let generator;
+
+		function request(url) {
+			httpGetAsync(url, function (data) {
+				generator.next(data); // 실행 결과를 넘긴다. 여기 결과는 yield에서 받을 수 있다.
+			});
+		}
+
+
+		function* main() {
+			let data1 = yield request('https://www.reddit.com/r/pics/.json');
+			let data2 = yield request(data1.data.children[0].data.url + ".json");
+			// console.log(data2);
+		}
+
+		generator = main(); // 제너레이터 반환
+		generator.next(); // 실행
+
+		let grade = "A+";
+		let examResults = new Promise((resolve, reject) => {
+			if (grade === "A+") resolve("You will get an XBOX");
+			else reject("Better luck next time");
+		});
+
+		let conductExams = () => {
+			examResults
+				.then(x => console.log(x))
+				.catch(x => console.log(x))
+		}
+
+		// conductExams();
+
+
+		function fetchTextByPromise() {
+			return new Promise(resolve => {
+				setTimeout(() => {
+					resolve('es8');
+				}, 2000);
+			});
+		}
+
+		function sayHello() {
+			return new Promise((resolve, reject) => fetchTextByPromise()
+				.then(x => console.log(x))
+				.catch(x => console.log(x)));
+		}
+
+		// sayHello();
+
+		async function sayHello1() {
+			const externalFetchedText = await fetchTextByPromise();
+			console.log(externalFetchedText);
+		}
+
+		// sayHello1();
+
+		let sayHello2 = async () => {
+			const externalFetchedText = await fetchTextByPromise();
+			console.log(externalFetchedText);
+		}
+
+		// sayHello2();
+
+		const getAsync = (url) => {
+			return fetch(url)
+				.then(x => x)
+				.catch(err => console.log(err))
+		}
+
+		async function getAsyncCaller() {
+			try {
+				const res = await getAsync('https://www.reddit.com/r/pics/.json');
+				const data = await res.json();
+				// console.log(data);
+				return data;
+			} catch (err) {
+				await Promise.reject(err);
+			}
+		}
+
+		getAsyncCaller()
+			.then(async (x) => {
+				console.log(x);
+			})
+			.catch(err => console.log(err))
+	</script>
+</body>
+</html>
